@@ -44,7 +44,7 @@ public class ThreadLogin extends AsyncTask<String,Void,Cliente>{
     protected Cliente doInBackground(String... strings) {
         Log.i("Chamando WebService", "método verificarCliente");
         try {
-            Cliente cliente =  new ClienteWS().verificarCliente(strings[0], strings[1]);
+            Cliente cliente =  new ClienteWS().getClienteLogin(strings[0], strings[1]);
             if(cliente!=null){
                 return cliente;
             }

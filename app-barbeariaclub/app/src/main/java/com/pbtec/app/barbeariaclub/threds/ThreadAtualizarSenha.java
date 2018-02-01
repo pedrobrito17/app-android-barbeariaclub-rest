@@ -38,7 +38,8 @@ public class ThreadAtualizarSenha extends AsyncTask<Void,Void,String>{
 
     @Override
     protected String doInBackground(Void... voids) {
-        return new ClienteWS().atualizarSenha(email,nova_senha);
+        return null;
+        //return new ClienteWS().atualizarSenha(email,nova_senha);
     }
 
     @Override

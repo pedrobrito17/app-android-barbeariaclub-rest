@@ -40,7 +40,8 @@ public class ThreadAtualizarPerfil extends AsyncTask<Cliente,Void,String>{
     @Override
     protected String doInBackground(Cliente... clientes) {
         this.cliente = clientes[0];
-        return new ClienteWS().atualizarCliente(clientes[0],this.email_antigo);
+        return null;
+        //return new ClienteWS().atualizarCliente(clientes[0],this.email_antigo);
     }
 
     @Override

@@ -1,132 +1,70 @@
 package com.pbtec.app.barbeariaclub.comunicadorwebservice;
 
 import android.util.Log;
-
 import com.pbtec.app.barbeariaclub.entidades.Cliente;
+import org.json.JSONException;
+import org.json.JSONObject;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
-import org.ksoap2.SoapEnvelope;
-import org.ksoap2.serialization.PropertyInfo;
-import org.ksoap2.serialization.SoapObject;
-import org.ksoap2.serialization.SoapSerializationEnvelope;
-import org.ksoap2.transport.HttpTransportSE;
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-/**
- * Created by root on 12/08/16.
- */
 public class ClienteWS {
-    private final String NAMESPACE = "http://com.ws/";
-    private final String METODO_1 = "insertCliente";
-    private final String METODO_2 = "verificarCliente";
-    private final String METODO_3 = "atualizarSenha";
-    private final String METODO_4 = "atualizarCliente";
-    private final String URL = "http://node155784-pb-server.jelasticlw.com.br:8080/webapp/WebServiceBarbeariaClub?wsdl";
 
-    public String insertCliente(Cliente cliente){
-        SoapObject soap = new SoapObject(NAMESPACE, METODO_1);
-        PropertyInfo pi = new PropertyInfo();
-        pi.name = "cliente";
-        pi.setValue(cliente);
-        pi.setType(cliente.getClass());
-        soap.addProperty(pi);
+    public Cliente getClienteLogin(String email, String senha){
+        String resource = "http://node159191-envts.jelasticlw.com.br:8080/restbarbearia/"+
+                "webresources/wscliente/cliente/"+email+"/"+senha;
 
-
-        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
-        envelope.setOutputSoapObject(soap);
-        envelope.addMapping(NAMESPACE, Cliente.class.getName(), new Cliente().getClass());
-
-        HttpTransportSE http = new HttpTransportSE(URL);
+        HttpURLConnection httpURLConnection = null;
+        BufferedReader bufferedReader = null;
+        String json = "";
+        Cliente cliente = null;
 
         try {
-            http.call(NAMESPACE+METODO_1, envelope);
-            Object msg = envelope.getResponse();
-            return msg.toString();
-        } catch (IOException | XmlPullParserException ex) {
-            Logger.getLogger(ClienteWS.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return "Erro no sistema";
-    }
+            /* Classe responsável por criar um túnel de comunicação com a URL do recurso */
+            URL url = new URL(resource);
 
-    public Cliente verificarCliente(String email, String senha){
-        SoapObject soap = new SoapObject(NAMESPACE,METODO_2);
-        soap.addProperty("email", email);
-        soap.addProperty("senha", senha);
+            /* Retorna uma conexão com a URL(URLConncetion), porém estamos trabalhando com
+             * um webservice REST, então precisamos obter o retorno HTTPURLConnection.
+             * Na ultima linha é estabelecido a conexão com o recurso.*/
+            httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.setRequestMethod("GET");
+            httpURLConnection.connect();
 
-        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
-        envelope.setOutputSoapObject(soap);
+            /* Retorna um fluxo de bytes a partir da conexão aberta */
+            InputStream inputStream = httpURLConnection.getInputStream();
+            /* InputStreamReader retorna um fluxo de caracteres a partir de um fluxo de bytes
+            *  BufferedReader faz a leitura do fluxo de caracteres utilizando buffer*/
+            bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
 
-        HttpTransportSE http = new HttpTransportSE(URL);
-
-        try {
-            http.call(NAMESPACE+METODO_2, envelope);
-            Log.i("KSOAP","recebeu o objeto");
-            SoapObject resposta = (SoapObject) envelope.getResponse();
-            Cliente cliente = new Cliente();
-            cliente.setNome(resposta.getProperty("nome").toString());
-            cliente.setEmail(resposta.getPropertyAsString("email"));
-            cliente.setDdd(Integer.parseInt(resposta.getProperty("ddd").toString()));
-            cliente.setTelefone(resposta.getProperty("telefone").toString());
-            cliente.setSenha(resposta.getProperty("senha").toString());
-            if(!cliente.getNome().isEmpty()){
-                return cliente;
+            String linha;
+            StringBuffer stringBuffer = new StringBuffer();
+            while((linha = bufferedReader.readLine()) != null){
+                stringBuffer.append(linha);
             }
-        } catch (IOException ex) {
-            Logger.getLogger(ClienteWS.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (XmlPullParserException ex) {
-            Logger.getLogger(ClienteWS.class.getName()).log(Level.SEVERE, null, ex);
+
+            inputStream.close();
+            json = stringBuffer.toString();
+            Log.i("JSON RECEBIDO",json);
+
+        } catch (Exception e) {
+            Log.e("Erro no JSON","erro ao ler o json: "+e.toString());
         }
-        return null;
-    }
-
-    public String atualizarSenha(String email, String nova_senha){
-        SoapObject soap = new SoapObject(NAMESPACE,METODO_3);
-        soap.addProperty("email", email);
-        soap.addProperty("nova_senha", nova_senha);
-
-        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
-        envelope.setOutputSoapObject(soap);
-
-        HttpTransportSE http = new HttpTransportSE(URL);
 
         try {
-            http.call(NAMESPACE+METODO_3, envelope);
-            Object resposta = envelope.getResponse();
-            return resposta.toString();
-        } catch (IOException ex) {
-            Logger.getLogger(ClienteWS.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (XmlPullParserException ex) {
-            Logger.getLogger(ClienteWS.class.getName()).log(Level.SEVERE, null, ex);
+            JSONObject object = new JSONObject(json);
+            cliente = new Cliente();
+            cliente.setNome(object.getString("nome"));
+            cliente.setEmail(object.getString("email"));
+            cliente.setDdd(object.getInt("ddd"));
+            cliente.setTelefone(object.getString("telefone"));
+            cliente.setSenha(object.getString("senha"));
+        } catch (JSONException e) {
+            Log.e("Erro no JSON","erro ao converter para JSONObject: "+e.toString());
         }
-        return "Erro no sistema";
+
+        return cliente;
     }
 
-    public String atualizarCliente(Cliente cliente, String email_antigo){
-        SoapObject soap = new SoapObject(NAMESPACE,METODO_4);
-        PropertyInfo pi = new PropertyInfo();
-        pi.name = "cliente";
-        pi.setValue(cliente);
-        pi.setType(cliente.getClass());
-        soap.addProperty(pi);
-        soap.addProperty("email_antigo", email_antigo);
-
-        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
-        envelope.setOutputSoapObject(soap);
-
-        HttpTransportSE http = new HttpTransportSE(URL);
-
-        try {
-            http.call(NAMESPACE+METODO_4, envelope);
-            Object resposta = envelope.getResponse();
-            return resposta.toString();
-        } catch (IOException ex) {
-            Logger.getLogger(ClienteWS.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (XmlPullParserException ex) {
-            Logger.getLogger(ClienteWS.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return "Erro no sistema";
-    }
 }
