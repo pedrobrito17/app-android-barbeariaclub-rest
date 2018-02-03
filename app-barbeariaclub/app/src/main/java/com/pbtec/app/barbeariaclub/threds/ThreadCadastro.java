@@ -36,9 +36,7 @@ public class ThreadCadastro extends AsyncTask<Cliente,Void,String>{
 
     @Override
     protected String doInBackground(Cliente... clientes) {
-
-        return null;
-        //return new ClienteWS().insertCliente(clientes[0]);
+        return new ClienteWS().insertNovoCliente(clientes[0]);
     }
 
     @Override

@@ -15,15 +15,13 @@ import com.pbtec.app.barbeariaclub.interfaces.FragmentListenner;
  */
 public class ThreadAtualizarPerfil extends AsyncTask<Cliente,Void,String>{
     private ProgressDialog load;
-    private String email_antigo;
     private Context context;
     private final String MY_PREF = "PreferênciasApp";
     private Cliente cliente;
     private FragmentListenner mListener;
 
-    public ThreadAtualizarPerfil(Context context, String email_antigo){
+    public ThreadAtualizarPerfil(Context context){
         this.context = context;
-        this.email_antigo = email_antigo;
         if (context instanceof FragmentListenner) {
             mListener = (FragmentListenner) context;
         } else {
@@ -40,8 +38,7 @@ public class ThreadAtualizarPerfil extends AsyncTask<Cliente,Void,String>{
     @Override
     protected String doInBackground(Cliente... clientes) {
         this.cliente = clientes[0];
-        return null;
-        //return new ClienteWS().atualizarCliente(clientes[0],this.email_antigo);
+        return new ClienteWS().updateClienteCadastrado(clientes[0]);
     }
 
     @Override

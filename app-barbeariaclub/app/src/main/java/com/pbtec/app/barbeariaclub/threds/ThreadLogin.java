@@ -2,18 +2,12 @@ package com.pbtec.app.barbeariaclub.threds;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.pbtec.app.barbeariaclub.Main2Activity;
 import com.pbtec.app.barbeariaclub.comunicadorwebservice.ClienteWS;
-import com.pbtec.app.barbeariaclub.comunicadorwebservice.FuncionarioWS;
 import com.pbtec.app.barbeariaclub.entidades.Cliente;
-import com.pbtec.app.barbeariaclub.fragments.Cadastro;
-import com.pbtec.app.barbeariaclub.fragments.HomeLogged;
-import com.pbtec.app.barbeariaclub.fragments.HomeLogout;
 import com.pbtec.app.barbeariaclub.interfaces.OnLoginCompletedListener;
 
 /**
@@ -62,7 +56,6 @@ public class ThreadLogin extends AsyncTask<String,Void,Cliente>{
         }else if(cliente.getTelefone().equals("nada")){
             Log.i("ProgressDialog","Finalizando...");
             progressDialog.dismiss();
-            onLoginCompletedListener.onLoginCompletedFuncionario(cliente);
         }
         else if(cliente!=null){
             Log.i("ProgressDialog","Finalizando...");

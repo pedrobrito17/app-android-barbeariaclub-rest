@@ -59,11 +59,11 @@ public class MainActivity extends AppCompatActivity
             startActivity(it);
             finish();
         }
-        if(pref.getBoolean("logadoFuncionario",false)){ //testa se esta logado
+        /*if(pref.getBoolean("logadoFuncionario",false)){ //testa se esta logado
             Intent it = new Intent(this,Main5Activity.class);
             startActivity(it);
             finish();
-        }
+        }*/
 
         final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -246,18 +246,4 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override //método da interface OnLoginCompletedListener
-    public void onLoginCompletedFuncionario(Cliente funcionario) {
-        if(funcionario!=null){
-            //Grava na preferência os dados do funcionario para buscar
-            SharedPreferences pref = getSharedPreferences(MY_PREF,0);
-            SharedPreferences.Editor editor = pref.edit();
-            editor.putString("email_funcionario", funcionario.getEmail());
-            editor.commit();
-
-            Intent it = new Intent(this, Main5Activity.class);
-            startActivity(it);
-            finish();
-        }
-    }
 }

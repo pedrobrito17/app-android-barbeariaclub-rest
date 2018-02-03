@@ -36,7 +36,9 @@ public class Agenda extends Fragment {
 
         if(fragmentListenner.verificarInternet()) {
             ThreadAgenda thread = new ThreadAgenda(getContext());
-            thread.execute(getContext().getSharedPreferences(MY_PREF, 0).getString("email_cliente", "nulo"));
+            thread.execute(getContext().getSharedPreferences(MY_PREF, 0).
+                    getString("email_cliente", "nulo"));
+
             RecyclerView listView = (RecyclerView) view.findViewById(R.id.recyclerView_agenda);
         }
 

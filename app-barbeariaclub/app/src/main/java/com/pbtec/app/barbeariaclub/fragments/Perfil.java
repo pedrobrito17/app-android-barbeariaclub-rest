@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-
 import com.pbtec.app.barbeariaclub.R;
 import com.pbtec.app.barbeariaclub.dialogs.MudarSenha;
 import com.pbtec.app.barbeariaclub.entidades.Cliente;
@@ -22,6 +21,7 @@ public class Perfil extends Fragment {
     private AlertDialog dialog;
     private EditText nome,email,ddd,telefone,nova_senha,conf_nova_senha;
     private FragmentListenner fragmentListenner;
+
 
     public Perfil(Context context){
         if(context instanceof FragmentListenner){
@@ -52,7 +52,16 @@ public class Perfil extends Fragment {
             @Override
             public void onClick(View view) {
                 if(fragmentListenner.verificarInternet()) {
+
+                    Cliente cliente = getClienteEditText();
+                    Bundle bund = new Bundle();
+                    bund.putString("nome", cliente.getNome());
+                    bund.putString("email", cliente.getEmail());
+                    bund.putInt("ddd", cliente.getDdd());
+                    bund.putString("telefone", cliente.getTelefone());
+
                     DialogFragment dialog_mudar_senha = new MudarSenha();
+                    dialog_mudar_senha.setArguments(bund);
                     dialog_mudar_senha.show(getActivity().getFragmentManager(), "MudarSenha");
                 }
             }
@@ -63,18 +72,24 @@ public class Perfil extends Fragment {
             @Override
             public void onClick(View view) {
                 if(fragmentListenner.verificarInternet()) {
-                    Cliente cliente = new Cliente();
-                    cliente.setDdd(Integer.parseInt(ddd.getText().toString()));
-                    cliente.setNome(nome.getText().toString());
-                    cliente.setEmail(email.getText().toString());
-                    cliente.setTelefone(telefone.getText().toString());
-                    ThreadAtualizarPerfil threadAtualizarPerfil = new ThreadAtualizarPerfil(getContext(),
-                            getContext().getSharedPreferences(MY_PREF, 0).getString("email_cliente", ""));
+                    Cliente cliente = getClienteEditText();
+
+                    ThreadAtualizarPerfil threadAtualizarPerfil = new ThreadAtualizarPerfil(getContext());
                     threadAtualizarPerfil.execute(cliente);
                 }
             }
         });
 
         return view;
+    }
+
+    public Cliente getClienteEditText(){
+        Cliente cliente = new Cliente();
+        cliente.setDdd(Integer.parseInt(ddd.getText().toString()));
+        cliente.setNome(nome.getText().toString());
+        cliente.setEmail(email.getText().toString());
+        cliente.setTelefone(telefone.getText().toString());
+
+        return cliente;
     }
 }

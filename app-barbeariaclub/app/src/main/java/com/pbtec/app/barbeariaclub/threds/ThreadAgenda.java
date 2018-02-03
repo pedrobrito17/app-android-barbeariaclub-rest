@@ -38,7 +38,7 @@ public class ThreadAgenda extends AsyncTask<String,Void,List<Atendimento>>{
     @Override
     protected List<Atendimento> doInBackground(String... strings) {
         Log.i("AtendimentoWS",strings[0]);
-        return new AtendimentoWS().selectAtendimento(1,strings[0],"nulo","nulo");
+        return new AtendimentoWS().getAtendimentosAgendadosDoCliente(strings[0]);
     }
 
     @Override

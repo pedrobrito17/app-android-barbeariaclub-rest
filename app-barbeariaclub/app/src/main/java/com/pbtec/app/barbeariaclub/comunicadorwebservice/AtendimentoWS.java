@@ -1,163 +1,93 @@
 package com.pbtec.app.barbeariaclub.comunicadorwebservice;
 
+import android.util.Log;
+
 import com.pbtec.app.barbeariaclub.entidades.Atendimento;
+import com.pbtec.app.barbeariaclub.entidades.Cliente;
 
-import org.ksoap2.SoapEnvelope;
-import org.ksoap2.serialization.PropertyInfo;
-import org.ksoap2.serialization.SoapObject;
-import org.ksoap2.serialization.SoapSerializationEnvelope;
-import org.ksoap2.transport.HttpTransportSE;
-import org.xmlpull.v1.XmlPullParserException;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  * Created by root on 12/08/16.
  */
 public class AtendimentoWS {
-    private final String NAMESPACE = "http://com.ws/";
-    private final String METODO_1 = "setAtendimento";
-    private final String METODO_2 = "getAtendimentos";
-    private final String METODO_3 = "getAtendimentosAgendados";
-    private final String METODO_4 = "selecionarHorasAgendadas";
-    private final String METODO_5 = "deleteAtendimento";
-    private final String URL = "http://node155784-pb-server.jelasticlw.com.br:8080/webapp/WebServiceBarbeariaClub?wsdl";
+
+    private final String SERVER = "http://node159376-envpb.jelasticlw.com.br:8080/restbarbearia/"+
+            "webresources/";
 
     public boolean insertAtendimento(Atendimento atendimento){
-        SoapObject soap = new SoapObject(NAMESPACE, METODO_1);
-        PropertyInfo pi = new PropertyInfo();
-        pi.name = "atendimento";
-        pi.setValue(atendimento);
-        pi.setType(atendimento.getClass());
-        soap.addProperty(pi);
-
-
-        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
-        envelope.setOutputSoapObject(soap);
-        envelope.addMapping(NAMESPACE, Atendimento.class.getName(), new Atendimento().getClass());
-
-        HttpTransportSE http = new HttpTransportSE(URL);
-
-        try {
-            http.call(NAMESPACE+METODO_1, envelope);
-            Object msg = envelope.getResponse();
-            return Boolean.parseBoolean(msg.toString());
-        } catch (IOException | XmlPullParserException ex) {
-            Logger.getLogger(AtendimentoWS.class.getName()).log(Level.SEVERE, null, ex);
-        }
         return false;
     }
 
-    public List<Atendimento> selectAtendimento(int id, String email_cliente, String
-            email_funcionario, String data_atendimento){
-        SoapObject soap = new SoapObject(NAMESPACE, METODO_2);
-        soap.addProperty("id", id);
-        soap.addProperty("email_cliente", email_cliente);
-        soap.addProperty("email_funcionario", email_funcionario);
-        soap.addProperty("data_atendimento", data_atendimento);
-
-        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
-        envelope.setOutputSoapObject(soap);
-
-        HttpTransportSE http = new HttpTransportSE(URL);
+    public List<Atendimento> getAtendimentosAgendadosDoCliente(String email_cliente){
+        final String resource = SERVER+"wsatendimento/atendimentos/cliente/"+email_cliente;
+        String json = "";
+        Atendimento atendimento = null;
+        List<Atendimento> atendimentos;
 
         try {
-            http.call(NAMESPACE+METODO_2, envelope);
-            SoapObject msg = (SoapObject) envelope.bodyIn;
-            List<Atendimento> lista = new ArrayList();
-            for(int i=0; i<msg.getPropertyCount(); i++){
-                SoapObject obj = (SoapObject) msg.getProperty(i);
-                Atendimento atendimento = new Atendimento();
-                atendimento.setEmail_cliente(obj.getProperty("email_cliente").toString());
-                atendimento.setEmail_funcionario(obj.getProperty("email_funcionario").toString());
-                atendimento.setDesc_servico(obj.getProperty("desc_servico").toString());
-                atendimento.setData_atendimento(obj.getProperty("data_atendimento").toString());
-                atendimento.setHora_atendimento(obj.getProperty("hora_atendimento").toString());
-                lista.add(atendimento);
+            URL url = new URL(resource);
+
+            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.setRequestMethod("GET");
+            httpURLConnection.connect();
+
+            InputStream inputStream = httpURLConnection.getInputStream();
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+
+            String linha;
+            StringBuffer sbuffer = new StringBuffer();
+            while((linha = bufferedReader.readLine()) != null){
+                sbuffer.append(linha);
+                Log.i("JSON GETATENDIMENTOS", linha);
             }
-            return lista;
-        } catch (IOException | XmlPullParserException ex) {
-            Logger.getLogger(AtendimentoWS.class.getName()).log(Level.SEVERE, null, ex);
+            inputStream.close();
+            json = sbuffer.toString();
+
+            JSONArray jsonArray = new JSONArray(json);
+            atendimentos = new ArrayList<>();
+            for (int i = 0 ; i < jsonArray.length() ; i++){
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                atendimento = new Atendimento();
+                atendimento.setData_atendimento(jsonObject.getString("data_atendimento"));
+                atendimento.setDesc_servico(jsonObject.getString("desc_serv"));
+                atendimento.setEmail_cliente(jsonObject.getString("email_cliente"));
+                atendimento.setEmail_funcionario(jsonObject.getString("email_func"));
+                atendimento.setHora_atendimento(jsonObject.getString("hora_atendimento"));
+                atendimentos.add(atendimento);
+            }
+            return atendimentos;
+
+        } catch (Exception e) {
+            Log.e("ERRO JSON ATENDIMENTO", e.toString());
         }
+
         return null;
     }
 
     public List<Atendimento> selectAtendimentoAgendados(){
-        SoapObject soap = new SoapObject(NAMESPACE, METODO_3);
 
-        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
-        envelope.setOutputSoapObject(soap);
-
-        HttpTransportSE http = new HttpTransportSE(URL);
-
-        try {
-            http.call(NAMESPACE+METODO_3, envelope);
-            SoapObject msg =  (SoapObject) envelope.bodyIn;
-            //System.out.print(msg.toString());
-            List<Atendimento> lista = new ArrayList();
-            for(int i=0; i<msg.getPropertyCount(); i++){
-                SoapObject obj = (SoapObject) msg.getProperty(i);
-                Atendimento atendimento = new Atendimento();
-                atendimento.setEmail_cliente(obj.getProperty("email_cliente").toString());
-                atendimento.setEmail_funcionario(obj.getProperty("email_funcionario").toString());
-                atendimento.setDesc_servico(obj.getProperty("desc_servico").toString());
-                atendimento.setData_atendimento(obj.getProperty("data_atendimento").toString());
-                atendimento.setHora_atendimento(obj.getProperty("hora_atendimento").toString());
-                lista.add(atendimento);
-            }
-            return lista;
-        } catch (IOException | XmlPullParserException ex) {
-            Logger.getLogger(AtendimentoWS.class.getName()).log(Level.SEVERE, null, ex);
-        }
         return null;
     }
     
     public List<String> selectHorasAgendadas(String email_funcionario, String data_atendimento){
-        SoapObject soap = new SoapObject(NAMESPACE, METODO_4);
-        soap.addProperty("email_funcionario", email_funcionario);
-        soap.addProperty("data_atendimento", data_atendimento);
-        
-        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
-        envelope.setOutputSoapObject(soap);
 
-        HttpTransportSE http = new HttpTransportSE(URL);
-
-        try {
-            http.call(NAMESPACE+METODO_4, envelope);
-            SoapObject msg = (SoapObject) envelope.bodyIn;
-            List<String> lista = new ArrayList();
-            for(int i=0; i<msg.getPropertyCount(); i++){
-                Object obj = msg.getProperty(i);
-                lista.add(obj.toString());
-            }
-            return lista;
-        } catch (IOException | XmlPullParserException ex) {
-            Logger.getLogger(AtendimentoWS.class.getName()).log(Level.SEVERE, null, ex);
-        }
         return null; 
     }
 
     public boolean deletarAtendimento(String data, String hora){
-        SoapObject soap = new SoapObject(NAMESPACE, METODO_5);
-        soap.addProperty("data", data);
-        soap.addProperty("hora", hora);
-        
-        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
-        envelope.setOutputSoapObject(soap);
 
-        HttpTransportSE http = new HttpTransportSE(URL);
-
-        try {
-            http.call(NAMESPACE+METODO_5, envelope);
-            Object msg = envelope.getResponse();
-            return Boolean.valueOf(msg.toString());
-        } catch (IOException | XmlPullParserException ex) {
-            Logger.getLogger(AtendimentoWS.class.getName()).log(Level.SEVERE, null, ex);
-        }
         return false; 
     }
 }

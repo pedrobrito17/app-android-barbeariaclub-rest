@@ -8,6 +8,5 @@ import com.pbtec.app.barbeariaclub.entidades.Cliente;
 public interface OnLoginCompletedListener {
 
     void onLoginCompleted(Cliente result);
-    void onLoginCompletedFuncionario(Cliente funcionario);
     public boolean verificarInternet();
 }
