@@ -73,8 +73,12 @@ public class AdapterRecycleView extends RecyclerView.Adapter{
                 public void onClick(View view) {
                     Atendimento atend = (Atendimento) customViewHolder.lixeira.getTag();
                     ThreadDeleteAtendimento thread = new ThreadDeleteAtendimento(context);
-                    String email_cliente = context.getSharedPreferences(MY_PREF, 0).getString("email_cliente", "nulo");
-                    thread.execute(email_cliente, atend.getData_atendimento(), atend.getHora_atendimento());
+
+                    String email_cliente = context.getSharedPreferences(MY_PREF, 0).
+                            getString("email_cliente", "nulo");
+
+                    thread.execute(email_cliente, atend.getData_atendimento(),
+                            atend.getHora_atendimento());
                 }
             });
         }

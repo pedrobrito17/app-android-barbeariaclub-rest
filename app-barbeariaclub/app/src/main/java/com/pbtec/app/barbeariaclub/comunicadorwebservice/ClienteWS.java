@@ -14,7 +14,7 @@ import java.net.URL;
 
 public class ClienteWS {
 
-    private final String SERVER = "http://node159376-envpb.jelasticlw.com.br:8080/restbarbearia/"+
+    private final String SERVER = "http://node160005-envpb.jelasticlw.com.br:8080/wsrest/"+
             "webresources/";
 
     public Cliente getClienteLogin(String email, String senha){

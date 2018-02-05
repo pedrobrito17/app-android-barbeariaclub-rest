@@ -9,8 +9,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -23,10 +26,45 @@ import java.util.List;
  */
 public class AtendimentoWS {
 
-    private final String SERVER = "http://node159376-envpb.jelasticlw.com.br:8080/restbarbearia/"+
+    private final String SERVER = "http://node160005-envpb.jelasticlw.com.br:8080/wsrest/"+
             "webresources/";
 
     public boolean insertAtendimento(Atendimento atendimento){
+        final String resource = SERVER+"wsatendimento/atendimento";
+
+        try {
+            URL url = new URL(resource);
+            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.setRequestProperty("Accept", "application/json");
+            httpURLConnection.setRequestProperty("Content-type", "application/json");
+            httpURLConnection.setRequestMethod("POST");
+            httpURLConnection.setDoInput(true);
+            httpURLConnection.setDoOutput(true);
+
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.accumulate("email_cliente", atendimento.getEmail_cliente());
+            jsonObject.accumulate("email_func", atendimento.getEmail_funcionario());
+            jsonObject.accumulate("data_atendimento", atendimento.getData_atendimento());
+            jsonObject.accumulate("hora_atendimento", atendimento.getHora_atendimento());
+            jsonObject.accumulate("desc_serv", atendimento.getDesc_servico());
+
+            OutputStream outputStream = httpURLConnection.getOutputStream();
+            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream));
+            bufferedWriter.write(jsonObject.toString());
+            bufferedWriter.flush();
+            bufferedWriter.close();
+            outputStream.close();
+
+            httpURLConnection.connect();
+
+            Log.i("RESPOSTA DO SERVIDOR", httpURLConnection.getResponseMessage());
+            if(httpURLConnection.getResponseMessage().equals("Created"))
+                return true;
+
+        } catch (Exception e) {
+            Log.e("ERRO INSERT ATENDIMENTO", e.toString());
+        }
+
         return false;
     }
 
@@ -76,19 +114,86 @@ public class AtendimentoWS {
         return null;
     }
 
-    public List<Atendimento> selectAtendimentoAgendados(){
-
-        return null;
-    }
-    
-    public List<String> selectHorasAgendadas(String email_funcionario, String data_atendimento){
-
-        return null; 
-    }
-
+    //ERRO
     public boolean deletarAtendimento(String data, String hora){
+        final String resource = SERVER+"wsatendimento/atendimento";
 
+        try {
+            URL url = new URL(resource);
+            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.setRequestProperty("Content-type","application/json");
+            httpURLConnection.setRequestProperty("Accept","application/json");
+            httpURLConnection.setRequestMethod("DELETE");
+            httpURLConnection.setDoInput(true);
+            httpURLConnection.setDoOutput(true);
+
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.accumulate("email_cliente", "");
+            jsonObject.accumulate("email_func", "");
+            jsonObject.accumulate("desc_serv","");
+            jsonObject.accumulate("data_atendimento", data);
+            jsonObject.accumulate("hora_atendimento", hora);
+
+            OutputStream outputStream = httpURLConnection.getOutputStream();
+            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream));
+            bufferedWriter.write(jsonObject.toString());
+            bufferedWriter.flush();
+            bufferedWriter.close();
+            outputStream.close();
+
+            httpURLConnection.connect();
+            String response = httpURLConnection.getResponseMessage();
+            Log.i("TESTE RESPOSTA", response);
+            Log.i("DATA", data);
+            Log.i("HORA", hora);
+
+            return true;
+
+        } catch (Exception e) {
+            Log.e("ERRO DELETE ATENDIMENTO", e.toString());
+        }
         return false; 
+    }
+
+    public List<String> getHorariosIndisponiveis(String email_funcionario, String data){
+
+        String dia = String.valueOf(data.charAt(0))+String.valueOf(data.charAt(1));
+        String mes = String.valueOf(data.charAt(3))+String.valueOf(data.charAt(4));
+        String ano = data.substring(6,10);
+
+        List<String> lista = new ArrayList<>();
+
+        final String resource = SERVER+"wsatendimento/horarioindisponivel/"+email_funcionario+"/"+
+                dia+"/"+mes+"/"+ano;
+
+        try {
+            URL url = new URL(resource);
+            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.setRequestMethod("GET");
+            httpURLConnection.connect();
+
+            InputStream inputStream = httpURLConnection.getInputStream();
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+
+            String linha = "";
+            StringBuffer stringBuffer = new StringBuffer();
+            while((linha = bufferedReader.readLine()) != null){
+                stringBuffer.append(linha);
+            }
+
+            JSONArray jsonArray = new JSONArray(stringBuffer.toString());
+            for(int i = 0 ; i < jsonArray.length() ; i++){
+                lista.add(jsonArray.get(i).toString());
+            }
+
+            inputStream.close();
+            return lista;
+
+        } catch (Exception e) {
+            Log.e("ERRO HORARIOS JSON", e.toString());
+        }
+
+        return lista;
     }
 }
 

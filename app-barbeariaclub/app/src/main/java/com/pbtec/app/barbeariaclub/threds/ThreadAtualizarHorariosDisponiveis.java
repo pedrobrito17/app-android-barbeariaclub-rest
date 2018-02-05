@@ -4,6 +4,7 @@ import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.pbtec.app.barbeariaclub.comunicadorwebservice.AtendimentoWS;
@@ -40,7 +41,7 @@ public class ThreadAtualizarHorariosDisponiveis extends AsyncTask<String,Void,Li
 
     @Override
     protected List<String> doInBackground(String... strings) {
-        return new AtendimentoWS().selectHorasAgendadas(strings[0],strings[1]);
+        return new AtendimentoWS().getHorariosIndisponiveis(strings[0],strings[1]);
     }
 
     @Override
