@@ -9,6 +9,7 @@ import java.util.Hashtable;
  * Created by root on 12/08/16.
  */
 public class Atendimento implements KvmSerializable {
+    private int id_atendimento;
     private String email_cliente;
     private String email_funcionario;
     private String desc_servico;
@@ -17,6 +18,14 @@ public class Atendimento implements KvmSerializable {
 
     public Atendimento() {
 
+    }
+
+    public int getId_atendimento() {
+        return id_atendimento;
+    }
+
+    public void setId_atendimento(int id_atendimento) {
+        this.id_atendimento = id_atendimento;
     }
 
     public String getEmail_cliente() {

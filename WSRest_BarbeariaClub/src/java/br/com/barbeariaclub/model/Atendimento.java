@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 public class Atendimento implements Serializable{
+    private int id_atendimento;
     private String email_cliente;
     private String email_func;
     private String desc_serv;
@@ -17,6 +18,14 @@ public class Atendimento implements Serializable{
     
     public Atendimento(){
         super();
+    }
+
+    public int getId_atendimento() {
+        return id_atendimento;
+    }
+
+    public void setId_atendimento(int id_atendimento) {
+        this.id_atendimento = id_atendimento;
     }
 
     public String getEmail_cliente() {

@@ -17,8 +17,8 @@ import java.util.logging.Logger;
  */
 public class ConnectionBD {
     private final String USER = "root";
-    private final String PASSWORD = "fsadu"; //"YBRgiq66167";
-    private final String URL = "jdbc:mysql://localhost/BarbeariaClub_BD"; //"jdbc:mysql://node155783-pb-server.jelasticlw.com.br/barbeariaclub";  
+    private final String PASSWORD = "kI3jBdQFmF"; //"YBRgiq66167";
+    private final String URL = "jdbc:mysql://node160004-envpb.jelasticlw.com.br/barbearia";//"jdbc:mysql://localhost/BarbeariaClub_BD"; 
     Connection conn = null;
     
     public Connection conectarBD(){

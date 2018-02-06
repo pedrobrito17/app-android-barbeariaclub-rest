@@ -74,14 +74,12 @@ public class WSAtendimento {
     }
     
     //CONCLUÍDO////////////////////
-    @Path("/atendimento/")
+    @Path("/atendimento/{id}")
     @DELETE
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response deleteAtendimento(Atendimento atendimento) {
+    public Response deleteAtendimento(@PathParam("id") int id) {
         
         try {
-            new AtendimentoDAO().deleteAtendimento(
-                    atendimento.getData_atendimento(), atendimento.getHora_atendimento());
+            new AtendimentoDAO().deleteAtendimento(id);
 
             return Response.status(Response.Status.OK).build();
         } catch (SQLException ex) {

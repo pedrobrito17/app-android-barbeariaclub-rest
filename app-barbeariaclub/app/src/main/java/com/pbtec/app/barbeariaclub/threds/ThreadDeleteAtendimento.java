@@ -38,9 +38,9 @@ public class ThreadDeleteAtendimento extends AsyncTask<String,Void,Boolean> {
 
     @Override
     protected Boolean doInBackground(String... strings) {
-        boolean b = new AtendimentoWS().deletarAtendimento(strings[1],strings[2]);
+        boolean b = new AtendimentoWS().deletarAtendimento(strings[1]);
         lista = new AtendimentoWS().getAtendimentosAgendadosDoCliente(strings[0]);
-        return b;
+        return true;
     }
 
     @Override

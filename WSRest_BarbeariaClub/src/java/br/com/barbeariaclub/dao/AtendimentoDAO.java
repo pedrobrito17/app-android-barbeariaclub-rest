@@ -67,14 +67,13 @@ public class AtendimentoDAO {
         return horariosIndisponiveis;
     }
     
-    public void deleteAtendimento(String data, String hora) throws SQLException{
-        comandoSQL = "DELETE FROM Atendimento WHERE data_atendimento=? AND hora_atendimento=?";
+    public void deleteAtendimento(int id) throws SQLException{
+        comandoSQL = "DELETE FROM Atendimento WHERE id_atendimento=?";
         
         conexaoBD = new ConnectionBD().conectarBD();
         if(conexaoBD!=null){
             prd = conexaoBD.prepareStatement(comandoSQL);
-            prd.setDate(1, new Formatador().getDateSQL(data));
-            prd.setTime(2, new Formatador().getTime(hora));
+            prd.setInt(1, id);
             prd.execute();
             conexaoBD.close();
         }else{
@@ -95,6 +94,7 @@ public class AtendimentoDAO {
             Atendimento atendimento;
             while(resultSet.next()){
                 atendimento = new Atendimento();
+                atendimento.setId_atendimento(resultSet.getInt("id_atendimento"));
                 atendimento.setEmail_cliente(resultSet.getString("email_cliente"));
                 Time time = new Time(resultSet.getTime("hora_atendimento").getTime());  
                 atendimento.setHora_atendimento(time.toString());

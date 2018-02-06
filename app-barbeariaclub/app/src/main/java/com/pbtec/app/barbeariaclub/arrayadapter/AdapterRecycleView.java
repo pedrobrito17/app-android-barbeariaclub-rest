@@ -2,6 +2,7 @@ package com.pbtec.app.barbeariaclub.arrayadapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,13 +73,13 @@ public class AdapterRecycleView extends RecyclerView.Adapter{
                 @Override
                 public void onClick(View view) {
                     Atendimento atend = (Atendimento) customViewHolder.lixeira.getTag();
+
                     ThreadDeleteAtendimento thread = new ThreadDeleteAtendimento(context);
 
                     String email_cliente = context.getSharedPreferences(MY_PREF, 0).
                             getString("email_cliente", "nulo");
 
-                    thread.execute(email_cliente, atend.getData_atendimento(),
-                            atend.getHora_atendimento());
+                    thread.execute(email_cliente, String.valueOf(atend.getId_atendimento()) );
                 }
             });
         }

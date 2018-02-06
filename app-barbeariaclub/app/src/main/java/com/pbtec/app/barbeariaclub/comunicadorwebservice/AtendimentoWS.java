@@ -98,6 +98,7 @@ public class AtendimentoWS {
             for (int i = 0 ; i < jsonArray.length() ; i++){
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 atendimento = new Atendimento();
+                atendimento.setId_atendimento(jsonObject.getInt("id_atendimento"));
                 atendimento.setData_atendimento(jsonObject.getString("data_atendimento"));
                 atendimento.setDesc_servico(jsonObject.getString("desc_serv"));
                 atendimento.setEmail_cliente(jsonObject.getString("email_cliente"));
@@ -114,40 +115,18 @@ public class AtendimentoWS {
         return null;
     }
 
-    //ERRO
-    public boolean deletarAtendimento(String data, String hora){
-        final String resource = SERVER+"wsatendimento/atendimento";
+    public boolean deletarAtendimento(String id){
+        final String resource = SERVER+"wsatendimento/atendimento/"+id;
 
         try {
             URL url = new URL(resource);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-            httpURLConnection.setRequestProperty("Content-type","application/json");
-            httpURLConnection.setRequestProperty("Accept","application/json");
             httpURLConnection.setRequestMethod("DELETE");
-            httpURLConnection.setDoInput(true);
-            httpURLConnection.setDoOutput(true);
-
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.accumulate("email_cliente", "");
-            jsonObject.accumulate("email_func", "");
-            jsonObject.accumulate("desc_serv","");
-            jsonObject.accumulate("data_atendimento", data);
-            jsonObject.accumulate("hora_atendimento", hora);
-
-            OutputStream outputStream = httpURLConnection.getOutputStream();
-            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream));
-            bufferedWriter.write(jsonObject.toString());
-            bufferedWriter.flush();
-            bufferedWriter.close();
-            outputStream.close();
-
             httpURLConnection.connect();
-            String response = httpURLConnection.getResponseMessage();
-            Log.i("TESTE RESPOSTA", response);
-            Log.i("DATA", data);
-            Log.i("HORA", hora);
 
-            return true;
+            String response = httpURLConnection.getResponseMessage();
+            if(response.equals("Ok"))
+                return true;
 
         } catch (Exception e) {
             Log.e("ERRO DELETE ATENDIMENTO", e.toString());
